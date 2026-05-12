@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local registration store (written by /api/webhook)
+/data
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
