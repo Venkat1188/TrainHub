@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import { Section } from "@/components/Section";
+import AdminTabs from "@/components/AdminTabs";
 import { readRegistrations, type StoredRegistration } from "@/lib/registrations";
 
 export const metadata = { title: "Registrations" };
@@ -34,9 +35,9 @@ function formatDate(iso: string): string {
 function StatusPill({ status }: { status: string | null }) {
   const value = status ?? "unknown";
   const tone =
-    value === "paid"
+    value === "paid" || value === "confirmed"
       ? "bg-green-100 text-green-800"
-      : value === "unpaid"
+      : value === "unpaid" || value === "pending"
         ? "bg-amber-100 text-amber-800"
         : "bg-slate-100 text-slate-700";
   return (
@@ -61,6 +62,7 @@ export default async function AdminRegistrationsPage() {
         subtitle="Confirmed enrolments captured by the Stripe webhook. Sorted by most recent."
         crumbs={[{ href: "/admin/registrations", label: "Registrations" }]}
       />
+      <AdminTabs active="registrations" />
       <Section>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <Stat label="Total registrations" value={String(sorted.length)} />

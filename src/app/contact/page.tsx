@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import { Section } from "@/components/Section";
+import ContactForm from "@/components/ContactForm";
 
 export const metadata = { title: "Contact" };
 
@@ -53,41 +54,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <form className="lg:col-span-2 rounded-2xl bg-white border border-border p-8 grid gap-3">
-            <h3 className="text-2xl font-bold mb-2">Send us a message</h3>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <input
-                required
-                placeholder="Full name"
-                className="w-full rounded-md border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-              />
-              <input
-                required
-                type="email"
-                placeholder="Email"
-                className="w-full rounded-md border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-              />
-            </div>
-            <input
-              placeholder="Phone"
-              className="w-full rounded-md border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-            />
-            <input
-              placeholder="Subject"
-              className="w-full rounded-md border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-            />
-            <textarea
-              rows={6}
-              placeholder="Your message"
-              className="w-full rounded-md border border-border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
-            />
-            <button
-              type="submit"
-              className="rounded-md bg-brand text-white font-semibold px-4 py-2.5 text-sm hover:bg-brand-dark transition-colors w-full sm:w-auto"
-            >
-              Send Message
-            </button>
-          </form>
+          <ContactForm />
         </div>
       </Section>
     </>
