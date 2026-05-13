@@ -11,7 +11,7 @@ async function ensureLocalDir(url: string): Promise<void> {
   const stripped = url.slice("file:".length);
   const filePath = stripped.startsWith("//")
     ? stripped.slice(2)
-    : path.resolve(process.cwd(), stripped);
+    : path.resolve(/*turbopackIgnore: true*/ process.cwd(), stripped);
   await fs.mkdir(path.dirname(filePath), { recursive: true });
 }
 
@@ -57,7 +57,7 @@ async function bootstrap(client: Client): Promise<void> {
 }
 
 async function migrateRegistrationsJson(client: Client): Promise<void> {
-  const jsonPath = path.join(process.cwd(), "data", "registrations.json");
+  const jsonPath = path.join(/*turbopackIgnore: true*/ process.cwd(), "data", "registrations.json");
   let raw: string;
   try {
     raw = await fs.readFile(jsonPath, "utf8");
