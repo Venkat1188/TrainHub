@@ -27,11 +27,16 @@ export default async function RegisterPage({
   const course = COURSES.find((c) => c.slug === slug);
   if (!course) notFound();
 
+  const paymentsEnabled = process.env.PAYMENTS_ENABLED === "true";
+  const subtitle = paymentsEnabled
+    ? "Complete your details below and pay securely. You will receive joining instructions by email within one business day."
+    : "Complete your details below to reserve your seat. Our team will confirm your registration and share invoicing details by email within one business day.";
+
   return (
     <>
       <PageHeader
         title={`Register: ${course.title}`}
-        subtitle="Complete your details below and pay securely. You will receive joining instructions by email within one business day."
+        subtitle={subtitle}
         crumbs={[
           { href: "/courses", label: "Courses" },
           { href: `/courses/${course.slug}`, label: course.title },
@@ -45,6 +50,7 @@ export default async function RegisterPage({
               courseSlug={course.slug}
               courseTitle={course.title}
               feeUSD={course.feeUSD}
+              paymentsEnabled={paymentsEnabled}
             />
           </div>
           <aside className="lg:col-span-1 space-y-4 lg:sticky lg:top-24 lg:self-start">
@@ -79,8 +85,16 @@ export default async function RegisterPage({
                 What happens next?
               </p>
               <ol className="list-decimal pl-4 space-y-1">
-                <li>Submit this form and pay securely with Stripe.</li>
-                <li>We confirm your seat by email within one business day.</li>
+                {paymentsEnabled ? (
+                  <li>Submit this form and pay securely with Stripe.</li>
+                ) : (
+                  <li>Submit this form to reserve your seat.</li>
+                )}
+                <li>
+                  {paymentsEnabled
+                    ? "We confirm your seat by email within one business day."
+                    : "We confirm your registration and send invoicing details by email within one business day."}
+                </li>
                 <li>
                   You receive joining instructions, pre-reading and the trainer
                   contact 7 days before the course.

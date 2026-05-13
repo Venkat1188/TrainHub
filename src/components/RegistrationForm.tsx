@@ -6,6 +6,7 @@ type Props = {
   courseSlug: string;
   courseTitle: string;
   feeUSD: number;
+  paymentsEnabled?: boolean;
 };
 
 const inputClass =
@@ -15,6 +16,7 @@ export default function RegistrationForm({
   courseSlug,
   courseTitle,
   feeUSD,
+  paymentsEnabled = false,
 }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,18 +57,26 @@ export default function RegistrationForm({
       notes: String(fd.get("notes") ?? ""),
     };
 
+    const endpoint = paymentsEnabled ? "/api/checkout" : "/api/register";
     setSubmitting(true);
     try {
-      const res = await fetch("/api/checkout", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data: { url?: string; error?: string } = await res.json();
-      if (!res.ok || !data.url) {
-        throw new Error(data.error ?? "Could not start checkout. Please try again.");
+      const data: { url?: string; redirectUrl?: string; error?: string } =
+        await res.json();
+      const next = paymentsEnabled ? data.url : data.redirectUrl;
+      if (!res.ok || !next) {
+        throw new Error(
+          data.error ??
+            (paymentsEnabled
+              ? "Could not start checkout. Please try again."
+              : "Could not submit your registration. Please try again."),
+        );
       }
-      window.location.href = data.url;
+      window.location.href = next;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setSubmitting(false);
@@ -136,14 +146,27 @@ export default function RegistrationForm({
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border pt-6">
         <div className="text-sm text-muted">
-          Total to pay: <span className="font-semibold text-foreground">${feeUSD}.00 USD</span>
+          {paymentsEnabled ? "Total to pay: " : "Course fee: "}
+          <span className="font-semibold text-foreground">${feeUSD}.00 USD</span>
+          {!paymentsEnabled && (
+            <span className="block text-xs mt-1">
+              No payment due now — we&rsquo;ll send invoicing details after we
+              confirm your seat.
+            </span>
+          )}
         </div>
         <button
           type="submit"
           disabled={submitting}
           className="rounded-md bg-brand text-white font-semibold px-6 py-3 text-sm hover:bg-brand-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {submitting ? "Redirecting to payment..." : "Continue to secure payment"}
+          {submitting
+            ? paymentsEnabled
+              ? "Redirecting to payment..."
+              : "Submitting..."
+            : paymentsEnabled
+              ? "Continue to secure payment"
+              : "Submit registration"}
         </button>
       </div>
     </form>

@@ -22,24 +22,35 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+function isPaid(reg: StoredRegistration): boolean {
+  return reg.paymentStatus === "paid";
+}
+
 function buildSubject(reg: StoredRegistration): string {
-  return `Registration confirmed: ${reg.courseTitle}`;
+  return isPaid(reg)
+    ? `Registration confirmed: ${reg.courseTitle}`
+    : `Registration received: ${reg.courseTitle}`;
 }
 
 function buildPlainText(reg: StoredRegistration): string {
   const amount = formatAmount(reg.amountTotal, reg.currency);
+  const paid = isPaid(reg);
   const greeting = reg.participantName ? `Hi ${reg.participantName},` : "Hi,";
+  const lead = paid
+    ? "Your payment has been received and your seat is confirmed."
+    : "Your registration has been received and your seat is reserved. Our team will be in touch within one business day with invoicing details.";
+  const amountLabel = paid ? "Amount paid" : "Course fee";
   return [
     greeting,
     "",
     `Thank you for registering for "${reg.courseTitle}" with TrainHub Institute.`,
-    "Your payment has been received and your seat is confirmed.",
+    lead,
     "",
     "Booking summary",
     `  Course:        ${reg.courseTitle}`,
-    `  Amount paid:   ${amount}`,
+    `  ${amountLabel}:   ${amount}`,
     reg.organization ? `  Organization:  ${reg.organization}` : null,
-    `  Reference:     ${reg.stripeSessionId}`,
+    paid ? `  Reference:     ${reg.stripeSessionId}` : null,
     "",
     "We will send pre-reading and final joining instructions seven days before the start date.",
     "If you need to update participant details or change a session, just reply to this email.",
@@ -52,20 +63,26 @@ function buildPlainText(reg: StoredRegistration): string {
 
 function buildHtml(reg: StoredRegistration): string {
   const amount = formatAmount(reg.amountTotal, reg.currency);
+  const paid = isPaid(reg);
   const name = escapeHtml(reg.participantName || "there");
   const title = escapeHtml(reg.courseTitle);
   const org = reg.organization ? escapeHtml(reg.organization) : null;
   const ref = escapeHtml(reg.stripeSessionId);
+  const heading = paid ? "You&rsquo;re registered" : "Registration received";
+  const lead = paid
+    ? "Your payment has been received and your seat is confirmed."
+    : "Your registration has been received and your seat is reserved. Our team will be in touch within one business day with invoicing details.";
+  const amountLabel = paid ? "Amount paid" : "Course fee";
   return `<!doctype html><html><body style="font-family:Inter,Arial,sans-serif;color:#0f172a;line-height:1.55;margin:0;padding:24px;background:#f8fafc">
   <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:28px">
-    <h1 style="font-size:20px;margin:0 0 12px">You&rsquo;re registered</h1>
+    <h1 style="font-size:20px;margin:0 0 12px">${heading}</h1>
     <p style="margin:0 0 12px">Hi ${name},</p>
-    <p style="margin:0 0 12px">Thank you for registering for <strong>${title}</strong> with TrainHub Institute. Your payment has been received and your seat is confirmed.</p>
+    <p style="margin:0 0 12px">Thank you for registering for <strong>${title}</strong> with TrainHub Institute. ${lead}</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
       <tr><td style="padding:6px 0;color:#475569">Course</td><td style="padding:6px 0;font-weight:600">${title}</td></tr>
-      <tr><td style="padding:6px 0;color:#475569">Amount paid</td><td style="padding:6px 0;font-weight:600">${escapeHtml(amount)}</td></tr>
+      <tr><td style="padding:6px 0;color:#475569">${amountLabel}</td><td style="padding:6px 0;font-weight:600">${escapeHtml(amount)}</td></tr>
       ${org ? `<tr><td style="padding:6px 0;color:#475569">Organization</td><td style="padding:6px 0">${org}</td></tr>` : ""}
-      <tr><td style="padding:6px 0;color:#475569">Reference</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace;font-size:12px">${ref}</td></tr>
+      ${paid ? `<tr><td style="padding:6px 0;color:#475569">Reference</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace;font-size:12px">${ref}</td></tr>` : ""}
     </table>
     <p style="margin:0 0 12px">We&rsquo;ll send pre-reading and final joining instructions seven days before the start date.</p>
     <p style="margin:0 0 12px">If you need to update participant details or change a session, just reply to this email.</p>
