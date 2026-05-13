@@ -345,6 +345,8 @@ npm run build       # type-check + compile to .next/
 npm run start       # serve on http://localhost:3000
 ```
 
+For a step-by-step **Netlify + Turso** deployment, see [`DEPLOYMENT.md`](./DEPLOYMENT.md).
+
 For a real deployment (Vercel, a Node host, or a container):
 
 - Set every variable from the [Full `.env.local`](#full-envlocal-for-end-to-end-testing) example as a host-managed secret. Phase 1 only needs `ADMIN_*`, `RESEND_*`, `EMAIL_*` and (optionally) `DATABASE_*`.
